@@ -6,14 +6,16 @@ let map = (L
     .map('mapid', {
         // center: [34.0522, -118.2437],
         // center: [36.1733, -120.1794],
-        center: [36.6213, -122.3790],
-        // zoom: 7
-        zoom: 5
+        // center: [36.6213, -122.3790],
+        center: [-122.375, 37.61899948120117].reverse(),
+        // center: [33.9416, -118.4085],
+        zoom: 10
+        // zoom: 5
     }));
 
 // let tile_url = 'https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.png?access_token={accessToken}';
-// let tile_url = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}';
-let tile_url = 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}';
+let tile_url = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}';
+// let tile_url = 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}';
 // let tile_url = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
 
 let streets = L.tileLayer(tile_url, {
@@ -44,15 +46,39 @@ streets.addTo(map);
 //     [40.7899, -111.9791],
 //     [47.4502, -122.3088]
 // ];
-let line = [
-    [37.6213, -122.3790],
-    [30.1975, -97.6664],
-    [43.6777, -79.6248],
-    [40.6413, - 73.7781]
-];
-// Create a polyline using the line coordinates and make the line red.
-L.polyline(line, {
-    color: "cyan",
-    // style: 'dotted',
-    dashArray: '20 20'
+// Add GeoJSON data.
+let sanFranAirport =
+{
+    "type": "FeatureCollection", "features": [{
+        "type": "Feature",
+        "properties": {
+            "id": "3469",
+            "name": "San Francisco International Airport",
+            "city": "San Francisco",
+            "country": "United States",
+            "faa": "SFO",
+            "icao": "KSFO",
+            "alt": "13",
+            "tz-offset": "-8",
+            "dst": "A",
+            "tz": "America/Los_Angeles"
+        },
+        "geometry": {
+            "type": "Point",
+            "coordinates": [-122.375, 37.61899948120117]
+        }
+    }
+    ]
+};
+
+L.geoJSON(sanFranAirport, {
+    // pointToLayer: function (feature, latlng) {
+    //     return L
+    //         .marker(latlng)
+    //         .bindPopup("<h2>" + feature.properties.city + "</h2>");
+    // }
+    onEachFeature: function (feature, layer) {
+        return layer
+            .bindPopup("<h2>" + feature.properties.city + "</h2>");
+    }
 }).addTo(map);
