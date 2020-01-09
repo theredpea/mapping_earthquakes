@@ -7,6 +7,8 @@ let tile_url = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x
 // let tile_url = 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token={accessToken}';
 // let tile_url = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
 
+var noWrap = true;
+
 let streets = L.tileLayer(tile_url, {
     attribution: 'Map data %copy;  <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
@@ -18,24 +20,39 @@ let streets = L.tileLayer(tile_url, {
     // id: 'mapbox.comic',
     // id: 'mapbox.pirates',
     // id: 'satellite-streets-v11',
-    accessToken: API_KEY
+    accessToken: API_KEY,
+    noWrap: noWrap
 });
 // We create the dark view tile layer that will be an option for our map.
 let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 18,
-    accessToken: API_KEY
+    accessToken: API_KEY,
+    noWrap: noWrap
 });
+
+let light = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    accessToken: API_KEY,
+    noWrap: noWrap
+});
+
 // Create a base layer that holds both maps.
 let baseMaps = {
     Street: streets,
-    "Satellite Streets": satelliteStreets
+    "Satellite Streets": satelliteStreets,
+    "Light": light,
+
 };
 
 let earthquakesLayer = L.layerGroup();
 
+let tectonicLayer = L.layerGroup();
+
 let overlays = {
-    Earthquakes: earthquakesLayer
+    Earthquakes: earthquakesLayer,
+    "Tectonic Plates": tectonicLayer
 };
 // Create the map object with center and zoom level.
 let map = L.map('mapid', {
@@ -135,4 +152,30 @@ d3.json(earthquake7DayUrl).then(function (data) {
     };
 
     legend.addTo(map);
+});
+
+let tectonicUrl = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json';
+
+
+// Grabbing our GeoJSON data.
+d3.json(tectonicUrl).then(function (data) {
+
+    function styleInfo(feature) {
+        return {
+            opacity: 1,
+            fillOpacity: 0,
+            color: "red",
+            stroke: true,
+            weight: 2,
+
+        };
+    }
+    // Creating a GeoJSON layer with the retrieved data.
+    L.geoJson(data, {
+        // We set the style for each circleMarker using our styleInfo function.
+        style: styleInfo,
+    }).addTo(tectonicLayer);
+
+    tectonicLayer.addTo(map);
+
 });
